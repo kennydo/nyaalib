@@ -1,1 +1,1 @@
-from .client import NyaaClient
+from .client import NyaaClient, TorrentNotFoundError
