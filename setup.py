@@ -22,6 +22,7 @@ setup(
     ],
     packages=find_packages(),
     install_requires=[
+        'html5lib',
         'requests',
     ],
 )
