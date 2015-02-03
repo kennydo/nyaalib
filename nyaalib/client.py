@@ -26,7 +26,7 @@ class NyaaClient(object):
 
     def _get_page_content(self, response):
         """Given a :class:`requests.Response`, return the
-        :class:`lxml.etree.Element` of the first content `div`.
+        :class:`xml.etree.Element` of the content `div`.
 
         :param response: a :class:`requests.Response` to parse
         :returns: the :class:`Element` of the first content `div` or `None`
@@ -34,15 +34,24 @@ class NyaaClient(object):
         document = html5lib.parse(
             response.content,
             encoding=response.encoding,
-            treebuilder='lxml',
+            treebuilder='etree',
             namespaceHTMLElements=False
         )
-        content_div = document.xpath(
-            "//body//div[contains(concat(' ', @class, ' '), ' content ')][1]")
-        if not content_div:
-            print response.content
+        # etree doesn't fully support XPath, so we can't just search
+        # the attribute values for "content"
+        divs = document.findall(
+            ".//body//div[@class]")
+        content_div = None
+        for div in divs:
+            if "content" in div.attrib['class'].split(' '):
+                content_div = div
+                break
+
+        # The `Element` object is False-y when there are no subelements,
+        # so compare to `None`
+        if content_div is None:
             return None
-        return content_div[0]
+        return content_div
 
 
     def view_torrent(self, torrent_id):
@@ -56,8 +65,8 @@ class NyaaClient(object):
         }
         r = requests.get(self.base_url, params=params)
         content = self._get_page_content(r)
-
-        if content.text and content.text.strip() == TORRENT_NOT_FOUND_TEXT:
+        text = unicode(getattr(content, 'text', '')).strip()
+        if text == TORRENT_NOT_FOUND_TEXT:
             raise TorrentNotFoundError(TORRENT_NOT_FOUND_TEXT)
 
         return content
