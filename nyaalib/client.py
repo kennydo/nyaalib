@@ -1,10 +1,10 @@
-import codecs
+import datetime
 from xml.etree import ElementTree
 
 import html5lib
 import requests
 
-from .torrent import TorrentPage, Torrent
+from .torrent import User, TorrentPage, Torrent
 
 TORRENT_NOT_FOUND_TEXT = u'The torrent you are looking for ' \
                           'does not appear to be in the database.'
@@ -77,7 +77,34 @@ class NyaaClient(object):
             if TORRENT_NOT_FOUND_TEXT in text:
                 raise TorrentNotFoundError(TORRENT_NOT_FOUND_TEXT)
 
-        return content
+           # name, submitter, tracker, date_created,
+            #     seeders, leechers, downloads, file_size
+        cell_td_elems = content.findall('.//td')
+        name = cell_td_elems[3].text
+
+        # parse the submitter details
+        submitter_a_elem = cell_td_elems[7].findall('a')[0]
+        submitter_id = submitter_a_elem.attrib['href'].split('=')[1]
+        submitter_name = submitter_a_elem.findall('span')[0].text
+        submitter = User(submitter_id, submitter_name)
+
+        tracker = cell_td_elems[11].text
+        date_created = datetime.datetime.strptime(
+            cell_td_elems[5].text, '%Y-%m-%d, %H:%M %Z')
+
+        seeders = int(content.findall(".//span[@class='viewsn']")[0].text)
+        leechers = int(content.findall(".//span[@class='viewln']")[0].text)
+        downloads = int(content.findall(".//span[@class='viewdn']")[0].text)
+
+        file_size = cell_td_elems[21].text
+
+        # note that the tree returned by html5lib might not exactly match the
+        # original contents of the description div
+        description = ElementTree.tostring(
+            content.findall(".//div[@class='viewdescription']")[0],
+            encoding='utf8', method='html')
+        return TorrentPage(torrent_id, name, submitter, tracker, date_created,
+                           seeders, leechers, downloads, file_size, description)
 
     def get_torrent(self, torrent_id):
         """Gets the `.torrent` data for the given `torrent_id`.

@@ -1,3 +1,4 @@
+import datetime
 import os
 
 import pytest
@@ -30,6 +31,15 @@ def test_valid_torrent_id():
     with requests_mock.mock() as m:
         mocked_page_output = open(os.path.join(here, 'pages', 'view_tid_486766.html'), 'r').read()
         m.get(nyaa_url, text=mocked_page_output)
-        client.view_torrent(valid_tid)
+        torrent_page = client.view_torrent(valid_tid)
 
-        # TODO: assert the values in the parsed page
+    assert torrent_page.tid == valid_tid
+    assert torrent_page.name == '[FFF] Love Live! [BD][720p-AAC]'
+    assert torrent_page.submitter.uid == '73859'
+    assert torrent_page.submitter.name == 'FFF'
+    assert torrent_page.tracker == 'http://open.nyaatorrents.info:6544/announce'
+    assert torrent_page.date_created == datetime.datetime(2013, 10, 26, 7, 9)
+    assert torrent_page.seeders == 47
+    assert torrent_page.leechers == 12
+    assert torrent_page.downloads == 17786
+    assert torrent_page.file_size == '6.72 GiB'
