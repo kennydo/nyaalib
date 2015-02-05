@@ -1,3 +1,6 @@
+import codecs
+from xml.etree import ElementTree
+
 import html5lib
 import requests
 
@@ -65,9 +68,14 @@ class NyaaClient(object):
         }
         r = requests.get(self.base_url, params=params)
         content = self._get_page_content(r)
-        text = unicode(getattr(content, 'text', '')).strip()
-        if text == TORRENT_NOT_FOUND_TEXT:
-            raise TorrentNotFoundError(TORRENT_NOT_FOUND_TEXT)
+
+        # Check if the content div has any child elements
+        if not len(content):
+            # The "torrent not found" text in the page has some unicode junk
+            # that we can safely ignore.
+            text = str(content.text.encode('ascii', 'ignore'))
+            if TORRENT_NOT_FOUND_TEXT in text:
+                raise TorrentNotFoundError(TORRENT_NOT_FOUND_TEXT)
 
         return content
 

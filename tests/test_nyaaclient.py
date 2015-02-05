@@ -5,7 +5,9 @@ import requests_mock
 
 from nyaalib import NyaaClient, TorrentNotFoundError
 
+
 here = os.path.dirname(os.path.abspath(__file__))
+
 
 def test_invalid_torrent_id():
     nyaa_url = 'http://www.nyaa.se'
@@ -18,6 +20,7 @@ def test_invalid_torrent_id():
 
         with pytest.raises(TorrentNotFoundError):
             torrent_page = client.view_torrent(invalid_tid)
+
 
 def test_valid_torrent_id():
     nyaa_url = 'http://www.nyaa.se'
