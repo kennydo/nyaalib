@@ -53,5 +53,6 @@ class Torrent(object):
         return "<Torrent tid='{0}' with {1} character body>".format(
             self.tid, len(self.data))
 
+
 class ListingPage(object):
     pass

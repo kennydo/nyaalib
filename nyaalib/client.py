@@ -6,8 +6,8 @@ import requests
 
 from .torrent import User, TorrentPage, Torrent
 
-TORRENT_NOT_FOUND_TEXT = u'The torrent you are looking for ' \
-                          'does not appear to be in the database.'
+TORRENT_NOT_FOUND_TEXT = \
+    u'The torrent you are looking for does not appear to be in the database.'
 
 
 class TorrentNotFoundError(Exception):
@@ -56,7 +56,6 @@ class NyaaClient(object):
             return None
         return content_div
 
-
     def view_torrent(self, torrent_id):
         """
         :param torrent_id: the ID of the torrent to view
@@ -77,8 +76,6 @@ class NyaaClient(object):
             if TORRENT_NOT_FOUND_TEXT in text:
                 raise TorrentNotFoundError(TORRENT_NOT_FOUND_TEXT)
 
-           # name, submitter, tracker, date_created,
-            #     seeders, leechers, downloads, file_size
         cell_td_elems = content.findall('.//td')
         name = cell_td_elems[3].text
 
@@ -103,8 +100,9 @@ class NyaaClient(object):
         description = ElementTree.tostring(
             content.findall(".//div[@class='viewdescription']")[0],
             encoding='utf8', method='html')
-        return TorrentPage(torrent_id, name, submitter, tracker, date_created,
-                           seeders, leechers, downloads, file_size, description)
+        return TorrentPage(
+            torrent_id, name, submitter, tracker, date_created, seeders,
+            leechers, downloads, file_size, description)
 
     def get_torrent(self, torrent_id):
         """Gets the `.torrent` data for the given `torrent_id`.
