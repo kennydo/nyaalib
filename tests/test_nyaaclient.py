@@ -4,7 +4,7 @@ import os
 import pytest
 import requests_mock
 
-from nyaalib.client import NyaaClient, TorrentNotFoundError
+from nyaalib.client import Category, NyaaClient, TorrentNotFoundError
 
 
 here = os.path.dirname(os.path.abspath(__file__))
@@ -40,6 +40,7 @@ def test_valid_torrent_id():
 
     assert torrent_page.tid == valid_tid
     assert torrent_page.name == '[FFF] Love Live! [BD][720p-AAC]'
+    assert torrent_page.category == Category.anime__english_translated_anime
     assert torrent_page.submitter.uid == '73859'
     assert torrent_page.submitter.name == 'FFF'
     assert torrent_page.tracker == \

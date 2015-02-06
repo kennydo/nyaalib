@@ -66,12 +66,14 @@ class Category(enum.Enum):
 
 
 class TorrentPage(object):
-    def __init__(self, torrent_id, name, submitter, tracker, date_created,
-                 seeders, leechers, downloads, file_size, description):
+    def __init__(self, torrent_id, name, submitter, category, tracker,
+                 date_created, seeders, leechers, downloads, file_size,
+                 description):
         """
         :param torrent_id: a `str` ID
         :param name: the name of the torrent
         :param submitter: the :class:`User` who submitted the torrent
+        :param category: the :class:`Category` of the torrent
         :param tracker: URI of the tracker
         :param date_created: a :class:`datetime.datetime`
         :param seeders: the current `int` number of seeders
@@ -83,6 +85,7 @@ class TorrentPage(object):
         self.tid = torrent_id
         self.name = name
         self.submitter = submitter
+        self.category = category
         self.tracker = tracker
         self.date_created = date_created
         self.seeders = seeders

@@ -4,7 +4,7 @@ from xml.etree import ElementTree
 import html5lib
 import requests
 
-from .torrent import User, TorrentPage, Torrent
+from .torrent import Category, User, TorrentPage, Torrent
 
 TORRENT_NOT_FOUND_TEXT = \
     u'The torrent you are looking for does not appear to be in the database.'
@@ -79,6 +79,12 @@ class NyaaClient(object):
         cell_td_elems = content.findall('.//td')
         name = cell_td_elems[3].text
 
+        category_href = content\
+            .findall(".//td[@class='viewcategory']/a[2]")[0]\
+            .attrib['href']
+        category_value = category_href.split('cats=')[1]
+        category = Category.lookup_category(category_value)
+
         # parse the submitter details
         submitter_a_elem = cell_td_elems[7].findall('a')[0]
         submitter_id = submitter_a_elem.attrib['href'].split('=')[1]
@@ -101,7 +107,7 @@ class NyaaClient(object):
             content.findall(".//div[@class='viewdescription']")[0],
             encoding='utf8', method='html')
         return TorrentPage(
-            torrent_id, name, submitter, tracker, date_created, seeders,
+            torrent_id, name, submitter, category, tracker, date_created, seeders,
             leechers, downloads, file_size, description)
 
     def get_torrent(self, torrent_id):
