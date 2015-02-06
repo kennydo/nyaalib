@@ -18,7 +18,13 @@ setup(
     author_email='kedo@ocf.berkeley.edu',
     license='MIT',
     classifiers=[
-
+        'Development Status :: 3 - Alpha',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Topic :: Communications :: File Sharing',
+        'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Internet :: WWW/HTTP :: Indexing/Search',
     ],
     packages=find_packages(),
     install_requires=[
