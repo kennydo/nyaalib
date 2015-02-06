@@ -22,6 +22,7 @@ setup(
     ],
     packages=find_packages(),
     install_requires=[
+        'enum34',
         'html5lib',
         'requests',
     ],
