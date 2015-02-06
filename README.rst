@@ -1,4 +1,4 @@
 nyaalib
 =======
 
-Python library for Nyaa
+A simple Python library for parsing Nyaa pages.
