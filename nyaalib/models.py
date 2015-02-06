@@ -66,6 +66,12 @@ class Category(enum.Enum):
 
 
 class TorrentPage(object):
+    """Represents a snapshot view of a torrent detail page
+
+    Some of the instance variables do not change over time (eg: `name`,
+    `submitter`, `category`, etc.), but some variables do change
+    (eg: the number of `seeders`, the number of `leechers`).
+    """
     def __init__(self, torrent_id, name, submitter, category, tracker,
                  date_created, seeders, leechers, downloads, file_size,
                  description):
@@ -100,6 +106,8 @@ class TorrentPage(object):
 
 
 class User(object):
+    """Represents a Nyaa user.
+    """
     def __init__(self, user_id, name):
         self.uid = user_id
         self.name = name
@@ -110,6 +118,9 @@ class User(object):
 
 
 class Torrent(object):
+    """Holds the Nyaa ID of the torrent, as well as the contents of the
+    `.torrent` file.
+    """
     def __init__(self, torrent_id, torrent_data):
         """
         :param torrent_id: a `str` ID
@@ -122,7 +133,3 @@ class Torrent(object):
     def __repr__(self):
         return "<Torrent tid='{0}' with {1} character body>".format(
             self.tid, len(self.data))
-
-
-class ListingPage(object):
-    pass

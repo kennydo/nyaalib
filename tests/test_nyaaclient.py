@@ -4,7 +4,7 @@ import os
 import pytest
 import requests_mock
 
-from nyaalib.client import Category, NyaaClient, TorrentNotFoundError
+from nyaalib import Category, NyaaClient, TorrentNotFoundError
 
 
 here = os.path.dirname(os.path.abspath(__file__))

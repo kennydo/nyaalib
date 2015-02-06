@@ -1,4 +1,4 @@
-from nyaalib.torrent import Category
+from nyaalib import Category
 
 
 def test_reverse_lookup_of_subcategory():
