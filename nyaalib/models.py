@@ -65,6 +65,28 @@ class Category(enum.Enum):
         return cls._value2member_map_.get(value, None)
 
 
+@enum.unique
+class SearchSortKey(enum.Enum):
+    """An enumeration of the ways to sort on the search page.
+    """
+    date = '1'
+    seeders = '2'
+    leechers = '3'
+    downloads = '4'
+    size = '5'
+    name = '6'
+
+
+@enum.unique
+class SearchOrderKey(enum.Enum):
+    """An enumeration of the ways to order results on the search page.
+    You'll probably also want to specify the :class:`SearchSortKey` used
+    to sort the results as well.
+    """
+    descending = '1'
+    ascending = '2'
+
+
 class TorrentPage(object):
     """Represents a snapshot view of a torrent detail page
 
@@ -82,8 +104,8 @@ class TorrentPage(object):
         :param category: the :class:`Category` of the torrent
         :param tracker: URI of the tracker
         :param date_created: a :class:`datetime.datetime`
-        :param seeders: the current `int` number of seeders
-        :param leechers: the `current int` number of leechers
+        :param seeders: the current `int` number of seeders or None
+        :param leechers: the `current int` number of leechers or None
         :param downloads: the cumulative `int` number of downloads
         :param file_size: a `str` describing the file size
         :param description: the `str` description provided by the uploader
@@ -101,8 +123,8 @@ class TorrentPage(object):
         self.description = description
 
     def __repr__(self):
-        return "<TorrentPage tid='{0}' name='{1}'>".format(
-            self.tid, self.name)
+        return "<TorrentPage tid='{0}' name={1}>".format(
+            self.tid, repr(self.name))
 
 
 class User(object):
@@ -133,3 +155,60 @@ class Torrent(object):
     def __repr__(self):
         return "<Torrent tid='{0}' with {1} character body>".format(
             self.tid, len(self.data))
+
+
+class SearchResultPage(object):
+    """A single page of search results"""
+    def __init__(self, terms, category, sort_key, order_key, page, total_pages,
+                 torrent_stubs):
+        """
+        :param terms: the `str` we are searching for
+        :param category: the :class:`Category` of the results sought
+        :param sort_key: the :class:`SearchSortKey` of the results list
+        :param order_key: the :class:`SearchOrderkey` of the results list
+        :param page: the `int` page number of this page (1-based numbering)
+        :param total_pages: the total `int` pages of results for this search
+        :param torrent_stubs: a `list` of :class:`TorrentStub` objects
+        """
+        self.terms = terms
+        self.category = category
+        self.sort_key = sort_key
+        self.order_key = order_key
+        self.page = page
+        self.total_pages = total_pages
+        if torrent_stubs:
+            self.torrent_stubs = torrent_stubs
+        else:
+            self.torrent_stubs = []
+
+    def __repr__(self):
+        return "<SearchResultPage terms={0} page={1}/{2}>".format(
+            repr(self.terms), self.page, self.total_pages)
+
+
+class TorrentStub(object):
+    """The information available about a torrent from what's returned from the
+    search result page.
+    """
+    def __init__(self, torrent_id, name, category, seeders, leechers,
+                 file_size, downloads):
+        """
+        :param torrent_id: a `str` ID
+        :param name: the name of the torrent
+        :param category: the :class:`Category` of the torrent
+        :param seeders: the current `int` number of seeders or None
+        :param leechers: the `current int` number of leechers or None
+        :param file_size: a `str` describing the file size
+        :param downloads: the cumulative `int` number of downloads
+        """
+        self.tid = torrent_id
+        self.name = name
+        self.category = category
+        self.seeders = seeders
+        self.leechers = leechers
+        self.file_size = file_size
+        self.downloads = downloads
+
+    def __repr__(self):
+        return "<TorrentStub tid='{0}' name={1}>".format(
+            self.tid, repr(self.name))

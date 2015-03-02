@@ -1,10 +1,18 @@
 import datetime
 from xml.etree import ElementTree
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    # Python 2
+    import urlparse
 
 import html5lib
 import requests
 
-from .models import Category, TorrentPage, Torrent, User
+from .models import (
+    Category, SearchSortKey, SearchOrderKey, SearchResultPage, TorrentPage,
+    Torrent, TorrentStub, User
+)
 
 TORRENT_NOT_FOUND_TEXT = \
     u'The torrent you are looking for does not appear to be in the database.'
@@ -129,3 +137,80 @@ class NyaaClient(object):
             raise TorrentNotFoundError(TORRENT_NOT_FOUND_TEXT)
         torrent_data = r.content
         return Torrent(torrent_id, torrent_data)
+
+    def search(self, terms, category=Category.all_categories, page=1,
+               sort_key=SearchSortKey.date,
+               order_key=SearchOrderKey.descending):
+        """Get a list of torrents that match the given search term
+
+        :param terms: the `str` needle
+        :param category: the desired :class:`Category` of the results
+        :param page: the 1-based page to return the result
+        :param sort_key: the :class:`SearchSortKey` of the results list
+        :param order_key: the :class:`SearchOrderkey` of the results list
+        :return: a :class:`SearchPage` of results
+        """
+        params = {
+            'page': 'search',
+            'term': terms,
+            'cats': category.value,
+            'sort': sort_key.value,
+            'order': order_key.value,
+        }
+        r = requests.get(self.base_url, params=params)
+        content = self._get_page_content(r)
+
+        # first, get the total number of pages returned. this findall returns
+        # two results (one from the top half of the page, one from the bottom),
+        # so only take the first element.
+        a_to_last_page = content.findall('.//div[@class="rightpages"]/a[2]')
+        if not a_to_last_page:
+            total_pages = 1
+        else:
+            last_page_url = a_to_last_page[0].attrib['href']
+            offset = extract_url_query_parameter(last_page_url, "offset")[0]
+            total_pages = int(offset)
+
+        torrent_stubs = []
+        rows = (x for x in content.findall('.//table//tr')
+                if 'tlistrow' in x.attrib.get('class', ''))
+        for row in rows:
+            cell_td_elems = row.findall('td')
+
+            category_value = extract_url_query_parameter(
+                cell_td_elems[0].find('a').attrib['href'],
+                'cats')[0]
+            category = Category.lookup_category(category_value)
+            torrent_id = extract_url_query_parameter(
+                cell_td_elems[1].find('a').attrib['href'],
+                "tid")[0]
+            name = cell_td_elems[1].find('a').text
+            file_size = cell_td_elems[3].text
+            if cell_td_elems[4].text.isdigit():
+                seeders = int(cell_td_elems[4].text)
+            else:
+                seeders = None
+            if cell_td_elems[5].text.isdigit():
+                leechers = int(cell_td_elems[5].text)
+            else:
+                leechers = None
+            downloads = int(cell_td_elems[6].text)
+
+            stub = TorrentStub(torrent_id, name, category,seeders, leechers,
+                               file_size, downloads)
+            torrent_stubs.append(stub)
+        return SearchResultPage(
+            terms, category, sort_key, order_key, page, total_pages,
+             torrent_stubs)
+
+
+def extract_url_query_parameter(url, parameter):
+    """Given a URL (ex: "http://www.test.com/path?query=3") and a parameter
+    (ex: "query"), return the value as a list
+    :param url: a `str` URL
+    :param parameter: the URL query we went to extract
+    :return: a `list` of values for the given query name in the given URL or
+        an empty string if the query is not in the URL
+    """
+    query_string = urlparse.urlparse(url).query
+    return urlparse.parse_qs(query_string).get(parameter, [])
