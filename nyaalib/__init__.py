@@ -118,8 +118,8 @@ class NyaaClient(object):
             content.findall(".//div[@class='viewdescription']")[0],
             encoding='utf8', method='html')
         return TorrentPage(
-            torrent_id, name, submitter, category, tracker, date_created, seeders,
-            leechers, downloads, file_size, description)
+            torrent_id, name, submitter, category, tracker, date_created,
+            seeders, leechers, downloads, file_size, description)
 
     def get_torrent(self, torrent_id):
         """Gets the `.torrent` data for the given `torrent_id`.
@@ -196,12 +196,12 @@ class NyaaClient(object):
                 leechers = None
             downloads = int(cell_td_elems[6].text)
 
-            stub = TorrentStub(torrent_id, name, category,seeders, leechers,
+            stub = TorrentStub(torrent_id, name, category, seeders, leechers,
                                file_size, downloads)
             torrent_stubs.append(stub)
         return SearchResultPage(
             terms, category, sort_key, order_key, page, total_pages,
-             torrent_stubs)
+            torrent_stubs)
 
 
 def extract_url_query_parameter(url, parameter):
