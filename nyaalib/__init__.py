@@ -1,10 +1,10 @@
 import datetime
 from xml.etree import ElementTree
 try:
-    from urllib.parse import urlparse
+    from urllib.parse import urlparse, parse_qs
 except ImportError:
     # Python 2
-    import urlparse
+    from urlparse import urlparse, parse_qs
 
 import html5lib
 import requests
@@ -212,5 +212,5 @@ def extract_url_query_parameter(url, parameter):
     :return: a `list` of values for the given query name in the given URL or
         an empty string if the query is not in the URL
     """
-    query_string = urlparse.urlparse(url).query
-    return urlparse.parse_qs(query_string).get(parameter, [])
+    query_string = urlparse(url).query
+    return parse_qs(query_string).get(parameter, [])
