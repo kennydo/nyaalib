@@ -1,3 +1,4 @@
+import codecs
 import datetime
 import os
 
@@ -11,7 +12,8 @@ here = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_page_contents(filename):
-    with open(os.path.join(here, 'pages', filename), 'r') as f:
+    file_path = os.path.join(here, 'pages', filename)
+    with codecs.open(file_path, encoding='utf-8') as f:
         return f.read()
 
 
@@ -50,3 +52,17 @@ def test_valid_torrent_id():
     assert torrent_page.leechers == 12
     assert torrent_page.downloads == 17786
     assert torrent_page.file_size == '6.72 GiB'
+
+
+def test_no_torrents_found():
+    nyaa_url = 'http://www.nyaa.se'
+    client = NyaaClient(nyaa_url)
+    with requests_mock.mock() as m:
+        mocked_page_output = get_page_contents('search_no_torrents_found.html')
+        m.get(nyaa_url, text=mocked_page_output)
+        m.encoding = 'utf-8'
+        search_result_page = client.search('no_torrents_found')
+
+    assert search_result_page.page == 1
+    assert search_result_page.total_pages == 1
+    assert len(search_result_page.torrent_stubs) == 0
