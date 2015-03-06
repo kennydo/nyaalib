@@ -14,7 +14,7 @@ here = os.path.dirname(os.path.abspath(__file__))
 nyaa_url = 'http://www.nyaa.se'
 
 def get_page_contents(filename):
-    file_path = os.path.join(here, 'pages', filename)
+    file_path = os.path.join(here, 'fixtures', 'pages', filename)
     with codecs.open(file_path, encoding='utf-8') as f:
         return f.read()
 

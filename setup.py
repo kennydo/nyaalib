@@ -10,7 +10,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='nyaalib',
-    version='0.0.5',
+    version='0.0.6',
     description='Python library for Nyaa',
     long_description=readme,
     url='https://github.com/kennydo/nyaalib',
